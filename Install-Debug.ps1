@@ -30,15 +30,40 @@ try {
     if ($null -eq $appNameNode -or [string]::IsNullOrWhiteSpace($appNameNode.InnerText)) {
         throw 'Could not find the app_name resource.'
     }
+    $appUrlNode = $strings.SelectSingleNode('/resources/string[@name="app_url"]')
+    if ($null -eq $appUrlNode -or [string]::IsNullOrWhiteSpace($appUrlNode.InnerText)) {
+        throw 'Could not find the app_url resource.'
+    }
+    $updateManifestUrlNode = $strings.SelectSingleNode('/resources/string[@name="update_manifest_url"]')
+    if ($null -eq $updateManifestUrlNode -or [string]::IsNullOrWhiteSpace($updateManifestUrlNode.InnerText)) {
+        throw 'Could not find the update_manifest_url resource.'
+    }
 
     $appName = $appNameNode.InnerText.Trim()
-    foreach ($value in @($applicationId, $versionName, $versionCode, $appName)) {
+    $appUrl = $appUrlNode.InnerText.Trim()
+    $updateManifestUrl = $updateManifestUrlNode.InnerText.Trim()
+    foreach ($urlSetting in @(
+        [pscustomobject]@{ Name = 'app_url'; Value = $appUrl },
+        [pscustomobject]@{ Name = 'update_manifest_url'; Value = $updateManifestUrl }
+    )) {
+        $uri = $null
+        if (
+            -not [Uri]::TryCreate($urlSetting.Value, [UriKind]::Absolute, [ref]$uri) -or
+            $uri.Scheme -ne 'https' -or
+            $uri.UserInfo -or
+            $uri.Fragment
+        ) {
+            throw "$($urlSetting.Name) must be a valid HTTPS URL without credentials or a fragment."
+        }
+    }
+
+    foreach ($value in @($applicationId, $versionName, $versionCode, $appName, $appUrl, $updateManifestUrl)) {
         if ($value.Contains('|') -or $value.Contains("`r") -or $value.Contains("`n")) {
             throw 'APK information contains characters that cannot be displayed safely.'
         }
     }
 
-    [Console]::Out.WriteLine("$applicationId|$versionName|$versionCode|$appName")
+    [Console]::Out.WriteLine("$applicationId|$versionName|$versionCode|$appName|$appUrl|$updateManifestUrl")
 } catch {
     [Console]::Error.WriteLine($_.Exception.Message)
     exit 1

@@ -16,6 +16,8 @@ set "APP_PACKAGE="
 set "VERSION_NAME="
 set "VERSION_CODE="
 set "APP_NAME="
+set "APP_URL="
+set "UPDATE_MANIFEST_URL="
 if not exist "%APK%" (
     echo Debug APK was not found: "%APK%"
     echo Build it first, or copy app-debug.apk to the expected output path.
@@ -29,11 +31,13 @@ if not exist "%~dp0app\build\outputs\apk\debug\output-metadata.json" (
     pause
     exit /b 1
 )
-for /f "tokens=1-4 delims=|" %%A in ('powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Get-Debug-Apk-Info.ps1" -MetadataPath "%~dp0app\build\outputs\apk\debug\output-metadata.json" -StringsPath "%~dp0app\src\main\res\values\strings.xml"') do (
+for /f "tokens=1-6 delims=|" %%A in ('powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Install-Debug.ps1" -MetadataPath "%~dp0app\build\outputs\apk\debug\output-metadata.json" -StringsPath "%~dp0app\src\main\res\values\strings.xml"') do (
     set "APP_PACKAGE=%%A"
     set "VERSION_NAME=%%B"
     set "VERSION_CODE=%%C"
     set "APP_NAME=%%D"
+    set "APP_URL=%%E"
+    set "UPDATE_MANIFEST_URL=%%F"
 )
 if not defined APP_PACKAGE (
     echo Could not read package name, version, and app name for the existing debug APK.
@@ -49,6 +53,8 @@ echo Installing APK directly with ADB:
 echo "%APK%"
 echo.
 echo App Name: %APP_NAME%
+echo App URL: %APP_URL%
+echo Update Manifest URL: %UPDATE_MANIFEST_URL%
 echo Package Name: %APP_PACKAGE%
 echo Version Name: %VERSION_NAME%
 echo Version Code: %VERSION_CODE%

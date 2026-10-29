@@ -183,6 +183,89 @@ function Adjust-VersionName([string]$VersionName, [int]$Amount) {
     return (($segments -join '.') + $match.Groups['suffix'].Value)
 }
 
+function Get-QrDownloadUrl([string]$IndexHtml) {
+    $rawApkMatch = [regex]::Match(
+        $IndexHtml,
+        '(?is)<a\b(?=[^>]*\bclass="download")[^>]*\bhref="(?<url>https://raw\.githubusercontent\.com/[^/"\s]+/[^/"\s]+/main/app-debug\.apk)"'
+    )
+    $githubMatch = [regex]::Match(
+        $IndexHtml,
+        '(?is)<a\b(?=[^>]*\bclass="fallback-link")[^>]*\bhref="(?<url>https://github\.com/[^/"\s]+/[^/"\s]+)/*"'
+    )
+    if (-not $rawApkMatch.Success -or -not $githubMatch.Success) {
+        throw 'index.html must contain GitHub download and fallback links in the standard repository URL format.'
+    }
+
+    $rawApkUri = [Uri]$rawApkMatch.Groups['url'].Value
+    $githubUri = [Uri]$githubMatch.Groups['url'].Value
+    $rawRepository = $rawApkUri.AbsolutePath.Trim('/').Split('/')
+    $githubRepository = $githubUri.AbsolutePath.Trim('/').Split('/')
+    if (
+        $rawRepository.Count -ne 4 -or
+        $githubRepository.Count -ne 2 -or
+        $rawRepository[0] -ine $githubRepository[0] -or
+        $rawRepository[1] -ine $githubRepository[1] -or
+        $rawRepository[2] -cne 'main' -or
+        $rawRepository[3] -cne 'app-debug.apk'
+    ) {
+        throw 'The APK download and GitHub fallback links in index.html must target the same repository.'
+    }
+    if ($IndexHtml -notmatch 'fetch\("\./update\.json"') {
+        throw 'index.html is missing the configured update manifest link.'
+    }
+
+    return $rawApkUri.AbsoluteUri
+}
+
+function Write-ValidatedQrImage([string]$DownloadUrl, [string]$DestinationPath) {
+    $curl = Get-Command 'curl.exe' -ErrorAction SilentlyContinue
+    if (-not $curl) {
+        throw 'curl.exe is required to refresh the QR image.'
+    }
+
+    $temporaryPath = "$DestinationPath.$([Guid]::NewGuid().ToString('N')).tmp"
+    $qrServiceUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&format=png&data=' +
+        [Uri]::EscapeDataString($DownloadUrl)
+    try {
+        & $curl.Source '--fail' '--location' '--silent' '--show-error' '--max-time' '30' '--output' $temporaryPath $qrServiceUrl
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not refresh qr.png (curl exit code $LASTEXITCODE)."
+        }
+        $qrBytes = [IO.File]::ReadAllBytes($temporaryPath)
+        if (
+            $qrBytes.Length -lt 100 -or
+            $qrBytes[0] -ne 137 -or $qrBytes[1] -ne 80 -or
+            $qrBytes[2] -ne 78 -or $qrBytes[3] -ne 71
+        ) {
+            throw 'The refreshed QR image is not a valid PNG.'
+        }
+
+        Move-Item -LiteralPath $temporaryPath -Destination $DestinationPath -Force
+    } finally {
+        if (Test-Path -LiteralPath $temporaryPath) {
+            Remove-Item -LiteralPath $temporaryPath -Force
+        }
+    }
+}
+
+function Set-IndexQrCacheKey([string]$IndexHtml, [string]$CacheKey) {
+    $expectedQr = '<img(?<attributes>[^>]*\bsrc="\./qr\.png(?:\?[^"]*)?"[^>]*)>'
+    if ($IndexHtml -notmatch $expectedQr) {
+        throw 'Could not find the QR image element in index.html.'
+    }
+
+    $qrSource = 'src="./qr.png?v=' + $CacheKey + '"'
+    return [regex]::Replace(
+        $IndexHtml,
+        $expectedQr,
+        [System.Text.RegularExpressions.MatchEvaluator]{
+            param($match)
+            [regex]::Replace($match.Value, '\bsrc="\./qr\.png(?:\?[^"]*)?"', $qrSource, 1)
+        },
+        1
+    )
+}
+
 function Build-DebugApk([int]$VersionCode, [string]$VersionName, [string]$ApplicationId) {
     $sdk = $env:ANDROID_SDK_ROOT
     if ([string]::IsNullOrWhiteSpace($sdk)) { $sdk = $env:ANDROID_HOME }
@@ -246,69 +329,11 @@ function Build-DebugApk([int]$VersionCode, [string]$VersionName, [string]$Applic
         throw "Built APK version does not match Version Name $VersionName and Version Code $VersionCode."
     }
 
-    $curl = Get-Command 'curl.exe' -ErrorAction SilentlyContinue
-    if (-not $curl) { throw 'curl.exe is required to refresh the QR image.' }
     $indexHtml = [IO.File]::ReadAllText($indexPath)
-    $qrUrl = $null
-    $rawApkMatch = [regex]::Match(
-        $indexHtml,
-        '(?is)<a\b(?=[^>]*\bclass="download")[^>]*\bhref="(?<url>https://raw\.githubusercontent\.com/[^/"\s]+/[^/"\s]+/main/app-debug\.apk)"'
-    )
-    $githubMatch = [regex]::Match(
-        $indexHtml,
-        '(?is)<a\b(?=[^>]*\bclass="fallback-link")[^>]*\bhref="(?<url>https://github\.com/[^/"\s]+/[^/"\s]+)/*"'
-    )
-    if (-not $rawApkMatch.Success -or -not $githubMatch.Success) {
-        throw 'index.html must contain GitHub download and fallback links in the standard repository URL format.'
-    }
-
-    $rawApkUri = [Uri]$rawApkMatch.Groups['url'].Value
-    $githubUri = [Uri]$githubMatch.Groups['url'].Value
-    $rawRepository = $rawApkUri.AbsolutePath.Trim('/').Split('/')
-    $githubRepository = $githubUri.AbsolutePath.Trim('/').Split('/')
-    if (
-        $rawRepository.Count -ne 4 -or
-        $githubRepository.Count -ne 2 -or
-        $rawRepository[0] -ine $githubRepository[0] -or
-        $rawRepository[1] -ine $githubRepository[1] -or
-        $rawRepository[2] -cne 'main' -or
-        $rawRepository[3] -cne 'app-debug.apk'
-    ) {
-        throw 'The APK download and GitHub fallback links in index.html must target the same repository.'
-    }
-
-    if ($indexHtml -notmatch 'fetch\("\./update\.json"') {
-        throw 'index.html is missing the configured update manifest link.'
-    }
-    $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&format=png&data=' +
-        [Uri]::EscapeDataString($rawApkUri.AbsoluteUri)
-    if (Test-Path $stagedQr) { Remove-Item -LiteralPath $stagedQr -Force }
+    $downloadUrl = Get-QrDownloadUrl $indexHtml
     Write-Host 'Refreshing the GitHub fallback QR image...' -ForegroundColor Cyan
-    & $curl.Source '--fail' '--location' '--silent' '--show-error' '--max-time' '30' '--output' $stagedQr $qrUrl
-    if ($LASTEXITCODE -ne 0) { throw "Could not refresh qr.png (curl exit code $LASTEXITCODE)." }
-    $qrBytes = [IO.File]::ReadAllBytes($stagedQr)
-    if (
-        $qrBytes.Length -lt 100 -or
-        $qrBytes[0] -ne 137 -or $qrBytes[1] -ne 80 -or
-        $qrBytes[2] -ne 78 -or $qrBytes[3] -ne 71
-    ) {
-        throw 'The refreshed QR image is not a valid PNG.'
-    }
-
-    $expectedQr = '<img(?<attributes>[^>]*\bsrc="\./qr\.png(?:\?[^"]*)?"[^>]*)>'
-    if ($indexHtml -notmatch $expectedQr) {
-        throw 'Could not find the QR image element in index.html.'
-    }
-    $versionedQrSource = 'src="./qr.png?v=' + $VersionCode + '"'
-    $indexHtml = [regex]::Replace(
-        $indexHtml,
-        $expectedQr,
-        [System.Text.RegularExpressions.MatchEvaluator]{
-            param($match)
-            [regex]::Replace($match.Value, '\bsrc="\./qr\.png(?:\?[^"]*)?"', $versionedQrSource, 1)
-        },
-        1
-    )
+    Write-ValidatedQrImage $downloadUrl $stagedQr
+    $indexHtml = Set-IndexQrCacheKey $indexHtml $VersionCode
     $versionHtml = [regex]::Escape('<p class="version" id="version" aria-live="polite">') +
         '.*?' +
         [regex]::Escape('</p>')
@@ -436,6 +461,9 @@ function Save-VersionAndBuild(
 }
 
 $current = Read-VersionFiles
+$qrPath = Join-Path $projectRoot 'qr.png'
+$indexPath = Join-Path $projectRoot 'index.html'
+$currentQrTarget = Get-QrDownloadUrl ([IO.File]::ReadAllText($indexPath))
 $pendingCode = $current.VersionCode
 $pendingName = $current.VersionName
 $pendingApplicationId = $current.ApplicationId
@@ -459,6 +487,8 @@ while ($true) {
     Write-Host "Pending app_url: $pendingAppUrl" -ForegroundColor Green
     Write-Host "Current update_manifest_url: $($current.UpdateManifestUrl)"
     Write-Host "Pending update_manifest_url: $pendingUpdateManifestUrl" -ForegroundColor Green
+    Write-Host "QR image: $qrPath"
+    Write-Host "QR target URL: $currentQrTarget"
     Write-Host "Current: Version Name $($current.VersionName)  |  Version Code $($current.VersionCode)"
     Write-Host "Pending: Version Name $pendingName  |  Version Code $pendingCode" -ForegroundColor Green
     if ($current.ManifestApplicationId -cne $current.ApplicationId) {
@@ -482,11 +512,12 @@ while ($true) {
     Write-Host '8. Set App Name'
     Write-Host '9. Set app_url (HTTPS website opened by the app)'
     Write-Host '10. Set update_manifest_url (HTTPS update manifest)'
+    Write-Host '11. Refresh qr.png from the QR target URL above (no APK build)'
     Write-Host 'S. Save changes'
     Write-Host 'Q. Quit without saving'
     Write-Host 'After changing a value, choose S to save it and build the APK.' -ForegroundColor DarkGray
     Write-Host 'Or enter both on one line to save/build, e.g. Version Name 1.1, Version Code 3' -ForegroundColor DarkGray
-    $choiceInput = Read-Host 'Choose 1-10, S, Q, or enter both versions'
+    $choiceInput = Read-Host 'Choose 1-11, S, Q, or enter both versions'
     if ($null -eq $choiceInput) { break }
     $choice = $choiceInput.Trim()
 
@@ -563,6 +594,18 @@ while ($true) {
             } else {
                 $pendingUpdateManifestUrl = $newUpdateManifestUrl
             }
+            break
+        }
+        '^11$' {
+            $indexHtml = [IO.File]::ReadAllText($indexPath)
+            $currentQrTarget = Get-QrDownloadUrl $indexHtml
+            Write-Host "Refreshing QR image: $qrPath" -ForegroundColor Cyan
+            Write-ValidatedQrImage $currentQrTarget $qrPath
+            $cacheKey = "$pendingCode-$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())"
+            $indexHtml = Set-IndexQrCacheKey $indexHtml $cacheKey
+            [IO.File]::WriteAllText($indexPath, $indexHtml, [Text.UTF8Encoding]::new($false))
+            Write-Host "Updated QR image: $qrPath" -ForegroundColor Green
+            Write-Host "QR target URL: $currentQrTarget" -ForegroundColor Green
             break
         }
         '^Version\s+Name\s+([^,]+),\s*Version\s+Code\s+(\d+)$' {

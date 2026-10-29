@@ -273,7 +273,7 @@ copy /Y "%INDEX%"    "%STAGE%\index.html" >nul || goto copyFailed
 copy /Y "%QR%"       "%STAGE%\qr.png" >nul || goto copyFailed
 
 rem Check APK version, create a content-addressed URL to bypass GitHub raw CDN path caches, and write its checksum.
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SOURCE%\Prepare-App-Debug-Upload.ps1" -TargetDirectory "%STAGE%" -ManifestPath "%MANIFEST%" -ApkPath "%APK%" -ApkMetadataPath "%APK_METADATA%" -StringsPath "%SOURCE%\app\src\main\res\values\strings.xml" -IndexPath "%INDEX%" -RawApkUrl "%RAW_APK_URL%"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SOURCE%\App-Debug-Upload.ps1" -TargetDirectory "%STAGE%" -ManifestPath "%MANIFEST%" -ApkPath "%APK%" -ApkMetadataPath "%APK_METADATA%" -StringsPath "%SOURCE%\app\src\main\res\values\strings.xml" -IndexPath "%INDEX%" -RawApkUrl "%RAW_APK_URL%"
 if errorlevel 1 (
     echo Version check or update.json preparation failed. Nothing was uploaded.
     goto failKeepWork
