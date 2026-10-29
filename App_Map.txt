@@ -1,0 +1,20 @@
+AllApp APP - CURRENT UI MAP
+========================
+
+The Android app contains one screen: a full-screen WebView that loads
+https://allapp.jakirfile.workers.dev.
+
+WEB PAGE
+--------
+  JavaScript and DOM storage are enabled for the site.
+  Site navigation stays inside the WebView.
+  Android Back navigates WebView history, then closes the app.
+  The current WebView page is restored after activity recreation.
+
+APP PERMISSIONS
+---------------
+  INTERNET
+
+The former native screens, authentication, and app-managed data features are
+removed. Existing Data files remain in the repository but are unused by the
+Android app.

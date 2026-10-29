@@ -1,0 +1,8 @@
+com.ijtc.allapp-packageLogo-0 D:\RubelApp-Android-Source\app\build\generated\res\packageLogo\debug
+com.ijtc.allapp-pngs-1 D:\RubelApp-Android-Source\app\build\generated\res\pngs\debug
+com.ijtc.allapp-updated_navigation_xml-2 D:\RubelApp-Android-Source\app\build\generated\updated_navigation_xml\debug
+com.ijtc.allapp-packageDebugResources-3 D:\RubelApp-Android-Source\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.ijtc.allapp-packageDebugResources-4 D:\RubelApp-Android-Source\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.ijtc.allapp-debug-5 D:\RubelApp-Android-Source\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.ijtc.allapp-debug-6 D:\RubelApp-Android-Source\app\src\debug\res
+gradleHome-0 C:\Users\Lenovo\.gradle

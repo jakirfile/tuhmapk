@@ -1,0 +1,62 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.ijtc.allapp-debug-4:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "D:\\RubelApp-Android-Source\\app\\build\\generated\\res\\packageLogo\\debug\\values\\colors.xml",
+                    "from": {
+                        "startLines": "7,2,3,4,5,6,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "286,55,102,149,196,241,328",
+                        "endColumns": "41,46,46,46,44,44,41",
+                        "endOffsets": "323,97,144,191,236,281,365"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "55,97,144,191,238,283,328",
+                        "endColumns": "41,46,46,46,44,44,41",
+                        "endOffsets": "92,139,186,233,278,323,365"
+                    }
+                },
+                {
+                    "source": "D:\\RubelApp-Android-Source\\app\\build\\generated\\res\\packageLogo\\debug\\values\\themes.xml",
+                    "from": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "56",
+                        "endLines": "9",
+                        "endColumns": "12",
+                        "endOffsets": "496"
+                    },
+                    "to": {
+                        "startLines": "27",
+                        "startColumns": "4",
+                        "startOffsets": "1725",
+                        "endLines": "33",
+                        "endColumns": "12",
+                        "endOffsets": "2092"
+                    }
+                },
+                {
+                    "source": "D:\\RubelApp-Android-Source\\app\\build\\generated\\res\\packageLogo\\debug\\values\\strings.xml",
+                    "from": {
+                        "startLines": "1,4,2,3,5,6,12,16,15,11,7,9,18,10,17,13,14,8",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "16,156,60,116,229,300,729,1135,985,684,352,542,1277,634,1203,798,902,489",
+                        "endColumns": "43,72,55,39,70,51,68,67,149,44,136,91,93,49,73,103,82,52",
+                        "endOffsets": "55,224,111,151,295,347,793,1198,1130,724,484,629,1366,679,1272,897,980,537"
+                    },
+                    "to": {
+                        "startLines": "9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "370,414,487,543,583,654,706,775,843,993,1038,1175,1267,1361,1411,1485,1589,1672",
+                        "endColumns": "43,72,55,39,70,51,68,67,149,44,136,91,93,49,73,103,82,52",
+                        "endOffsets": "409,482,538,578,649,701,770,838,988,1033,1170,1262,1356,1406,1480,1584,1667,1720"
+                    }
+                }
+            ]
+        }
+    ]
+}

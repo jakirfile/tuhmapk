@@ -1,0 +1,62 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.ijtc.allapp-release-5:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "D:\\AllApp-Android-Source\\app\\build\\generated\\res\\packageLogo\\release\\values\\colors.xml",
+                    "from": {
+                        "startLines": "7,2,3,4,5,6,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "286,55,102,149,196,241,328",
+                        "endColumns": "41,46,46,46,44,44,41",
+                        "endOffsets": "323,97,144,191,236,281,365"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "55,97,144,191,238,283,328",
+                        "endColumns": "41,46,46,46,44,44,41",
+                        "endOffsets": "92,139,186,233,278,323,365"
+                    }
+                },
+                {
+                    "source": "D:\\AllApp-Android-Source\\app\\build\\generated\\res\\packageLogo\\release\\values\\strings.xml",
+                    "from": {
+                        "startLines": "1,4,2,3,5,6,12,16,15,11,7,9,18,10,17,13,14,8",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "16,158,62,118,233,304,735,1141,991,690,356,548,1283,640,1209,804,908,495",
+                        "endColumns": "45,74,55,39,70,51,68,67,149,44,138,91,93,49,73,103,82,52",
+                        "endOffsets": "57,228,113,153,299,351,799,1204,1136,730,490,635,1372,685,1278,903,986,543"
+                    },
+                    "to": {
+                        "startLines": "9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "370,416,491,547,587,658,710,779,847,997,1042,1181,1273,1367,1417,1491,1595,1678",
+                        "endColumns": "45,74,55,39,70,51,68,67,149,44,138,91,93,49,73,103,82,52",
+                        "endOffsets": "411,486,542,582,653,705,774,842,992,1037,1176,1268,1362,1412,1486,1590,1673,1726"
+                    }
+                },
+                {
+                    "source": "D:\\AllApp-Android-Source\\app\\build\\generated\\res\\packageLogo\\release\\values\\themes.xml",
+                    "from": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "56",
+                        "endLines": "9",
+                        "endColumns": "12",
+                        "endOffsets": "498"
+                    },
+                    "to": {
+                        "startLines": "27",
+                        "startColumns": "4",
+                        "startOffsets": "1731",
+                        "endLines": "33",
+                        "endColumns": "12",
+                        "endOffsets": "2100"
+                    }
+                }
+            ]
+        }
+    ]
+}

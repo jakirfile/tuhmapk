@@ -1,0 +1,110 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.ijtc.allapp"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+7-->INJECTED
+8        android:minSdkVersion="24"
+8-->INJECTED
+9        android:targetSdkVersion="37" />
+9-->INJECTED
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:4:5-67
+11-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:4:22-64
+12    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+12-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:5:5-83
+12-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:5:22-80
+13    <uses-permission android:name="android.permission.READ_CONTACTS" />
+13-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:6:5-72
+13-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:6:22-69
+14    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+14-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:7:5-75
+14-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:7:22-72
+15    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+15-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:8:5-77
+15-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:8:22-74
+16    <uses-permission android:name="android.permission.CAMERA" />
+16-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:9:5-65
+16-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:9:22-62
+17    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+17-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:10:5-81
+17-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:10:22-78
+18    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+18-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:11:5-79
+18-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:11:22-76
+19    <uses-permission
+19-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:12:5-14:38
+20        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+20-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:13:9-65
+21        android:maxSdkVersion="28" />
+21-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:14:9-35
+22
+23    <uses-feature
+23-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:15:5-17:36
+24        android:name="android.hardware.camera"
+24-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:16:9-47
+25        android:required="false" />
+25-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:17:9-33
+26
+27    <application
+27-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:19:5-46:19
+28        android:allowBackup="true"
+28-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:20:9-35
+29        android:dataExtractionRules="@xml/data_extraction_rules"
+29-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:21:9-65
+30        android:extractNativeLibs="false"
+30-->INJECTED
+31        android:fullBackupContent="@xml/backup_rules"
+31-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:22:9-54
+32        android:icon="@mipmap/ic_launcher_logo"
+32-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:23:9-48
+33        android:label="@string/app_name"
+33-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:24:9-41
+34        android:roundIcon="@mipmap/ic_launcher_logo"
+34-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:25:9-53
+35        android:supportsRtl="true"
+35-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:26:9-35
+36        android:theme="@style/Theme.allapp" >
+36-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:27:9-46
+37        <activity
+37-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:28:9-40:20
+38            android:name="com.ijtc.allapp.MainActivity"
+38-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:29:13-41
+39            android:exported="true"
+39-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:30:13-36
+40            android:label="@string/app_name"
+40-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:31:13-45
+41            android:launchMode="singleTop"
+41-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:32:13-43
+42            android:theme="@style/Theme.allapp"
+42-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:33:13-50
+43            android:windowSoftInputMode="adjustResize" >
+43-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:34:13-55
+44            <intent-filter>
+44-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:35:13-39:29
+45                <action android:name="android.intent.action.MAIN" />
+45-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:36:17-69
+45-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:36:25-66
+46
+47                <category android:name="android.intent.category.LAUNCHER" />
+47-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:38:17-77
+47-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:38:27-74
+48            </intent-filter>
+49        </activity>
+50
+51        <provider
+51-->INJECTED
+52            android:name="com.ijtc.allapp.UpdateApkProvider"
+52-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:42:13-46
+53            android:authorities="com.ijtc.allapp.updateprovider"
+53-->INJECTED
+54            android:exported="false"
+54-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:44:13-37
+55            android:grantUriPermissions="true" />
+55-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:45:13-47
+56    </application>
+57
+58</manifest>

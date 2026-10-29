@@ -1,0 +1,8 @@
+{
+    "versionCode":  1,
+    "versionName":  "1.0",
+    "applicationId":  "com.ijtc.rreapp",
+    "apkUrl":  "https://raw.githubusercontent.com/jakirfile/rreapp/main/app-debug-904d1ac4fd9ce0577c786551b5c7b21920f3870c32ce4bf37a2353f502625a19.apk",
+    "apkFileName":  "app-debug.apk",
+    "sha256":  "904d1ac4fd9ce0577c786551b5c7b21920f3870c32ce4bf37a2353f502625a19"
+}

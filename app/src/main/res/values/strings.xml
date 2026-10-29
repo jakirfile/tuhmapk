@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">RREApp</string>
+    <string name="no_internet">ইন্টারনেট নেই !</string>
+    <string name="retry">Retry</string>
+    <string name="app_url">https://allapp.jakirfile.workers.dev</string>
+    <string name="sim_picker_title">সিম থেকে নম্বর বাছাই করুন</string>
+    <string name="sim_slot_label">সিম %1$d</string>
+    <string name="update_manifest_url" translatable="false">https://raw.githubusercontent.com/jakirfile/rreapp/main/update.json</string>
+    <string name="update_title">অ্যাপ আপডেট</string>
+    <string name="update_message">নতুন সংস্করণ %1$s পাওয়া গেছে। এখনই আপডেট করবেন?</string>
+    <string name="update_now">আপডেট করুন</string>
+    <string name="update_later">পরে</string>
+    <string name="update_downloading">ডাউনলোড হচ্ছে… %1$d%%</string>
+    <string name="update_permission">আপডেট ইনস্টল করতে এই অ্যাপকে অনুমতি দিন, তারপর ফিরে আসুন।</string>
+    <string name="update_permission_denied">ইনস্টলের অনুমতি দেওয়া হয়নি।</string>
+    <string name="update_hash_mismatch">ডাউনলোড করা APK যাচাই করা যায়নি। প্রাপ্ত SHA-256: %1$s। প্রত্যাশিত SHA-256: %2$s। আবার চেষ্টা করুন।</string>
+    <string name="update_failed">আপডেট ব্যর্থ হয়েছে: %1$s</string>
+    <string name="update_open_installer">সিস্টেম installer খুলুন</string>
+    <string name="update_miui_install_help">Installation restriction settings দেখুন।</string>
+</resources>
