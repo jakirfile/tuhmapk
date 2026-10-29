@@ -2,7 +2,7 @@
     <string name="app_name">RREApp</string>
     <string name="no_internet">ইন্টারনেট নেই !</string>
     <string name="retry">Retry</string>
-    <string name="app_url">https://allapp.jakirfile.workers.dev</string>
+    <string name="app_url">https://rreapp.jakirfile.workers.dev</string>
     <string name="sim_picker_title">সিম থেকে নম্বর বাছাই করুন</string>
     <string name="sim_slot_label">সিম %1$d</string>
     <string name="update_manifest_url" translatable="false">https://raw.githubusercontent.com/jakirfile/rreapp/main/update.json</string>

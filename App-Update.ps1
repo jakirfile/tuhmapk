@@ -38,6 +38,29 @@ function Read-VersionFiles {
     if ($null -eq $appNameNode -or [string]::IsNullOrWhiteSpace($appNameNode.InnerText)) {
         throw 'Could not find a valid app_name in app/src/main/res/values/strings.xml.'
     }
+    $appUrlNode = $strings.SelectSingleNode('/resources/string[@name="app_url"]')
+    if ($null -eq $appUrlNode -or [string]::IsNullOrWhiteSpace($appUrlNode.InnerText)) {
+        throw 'Could not find a valid app_url in app/src/main/res/values/strings.xml.'
+    }
+    $updateManifestUrlNode = $strings.SelectSingleNode('/resources/string[@name="update_manifest_url"]')
+    if ($null -eq $updateManifestUrlNode -or [string]::IsNullOrWhiteSpace($updateManifestUrlNode.InnerText)) {
+        throw 'Could not find a valid update_manifest_url in app/src/main/res/values/strings.xml.'
+    }
+
+    foreach ($urlSetting in @(
+        [pscustomobject]@{ Name = 'app_url'; Value = $appUrlNode.InnerText.Trim() },
+        [pscustomobject]@{ Name = 'update_manifest_url'; Value = $updateManifestUrlNode.InnerText.Trim() }
+    )) {
+        $uri = $null
+        if (
+            -not [Uri]::TryCreate($urlSetting.Value, [UriKind]::Absolute, [ref]$uri) -or
+            $uri.Scheme -ne 'https' -or
+            $uri.UserInfo -or
+            $uri.Fragment
+        ) {
+            throw "$($urlSetting.Name) must be a valid HTTPS URL without credentials or a fragment."
+        }
+    }
 
     $deviceVersion = Get-InstalledAppVersion $applicationId
     $versionCode = [int]$codeMatch.Groups['value'].Value
@@ -52,6 +75,8 @@ function Read-VersionFiles {
         VersionName         = $nameMatch.Groups['value'].Value
         Manifest            = $manifest
         ManifestApplicationId = [string]$manifest.applicationId
+        AppUrl              = $appUrlNode.InnerText.Trim()
+        UpdateManifestUrl   = $updateManifestUrlNode.InnerText.Trim()
         MinimumVersionCode  = [Math]::Max(
             [Math]::Max($versionCode, [int]$manifest.versionCode),
             $deviceVersion.VersionCode
@@ -108,6 +133,36 @@ function Set-ManifestApplicationId($Manifest, [string]$ApplicationId) {
     } else {
         $Manifest | Add-Member -NotePropertyName applicationId -NotePropertyValue $ApplicationId
     }
+}
+
+function Set-StringResource([string]$Content, [string]$Name, [string]$Value) {
+    $escapedName = [regex]::Escape($Name)
+    $pattern = '(?m)^(\s*<string\s+name="' + $escapedName + '"[^>]*>).*?(</string>\s*)$'
+    if (-not [regex]::IsMatch($Content, $pattern)) {
+        throw "Could not find the $Name resource in app/src/main/res/values/strings.xml."
+    }
+
+    $escapedValue = [System.Security.SecurityElement]::Escape($Value)
+    return [regex]::Replace(
+        $Content,
+        $pattern,
+        [System.Text.RegularExpressions.MatchEvaluator]{
+            param($match)
+            $match.Groups[1].Value + $escapedValue + $match.Groups[2].Value
+        },
+        1
+    )
+}
+
+function Test-HttpsUrl([string]$Value) {
+    $uri = $null
+    return (
+        -not [string]::IsNullOrWhiteSpace($Value) -and
+        [Uri]::TryCreate($Value, [UriKind]::Absolute, [ref]$uri) -and
+        $uri.Scheme -eq 'https' -and
+        -not $uri.UserInfo -and
+        -not $uri.Fragment
+    )
 }
 
 function Adjust-VersionName([string]$VersionName, [int]$Amount) {
@@ -305,7 +360,14 @@ function Build-DebugApk([int]$VersionCode, [string]$VersionName, [string]$Applic
     Write-Host "Updated local files: update.json, index.html, and qr.png."
 }
 
-function Save-VersionAndBuild([int]$VersionCode, [string]$VersionName, [string]$ApplicationId, [string]$AppName) {
+function Save-VersionAndBuild(
+    [int]$VersionCode,
+    [string]$VersionName,
+    [string]$ApplicationId,
+    [string]$AppName,
+    [string]$AppUrl,
+    [string]$UpdateManifestUrl
+) {
     if ($VersionCode -le $current.MinimumVersionCode) {
         Write-Host "Warning: Version Code $VersionCode is not higher than the current/installed minimum $($current.MinimumVersionCode). Android will not install this as an update over a higher version; uninstall the existing app first." -ForegroundColor Yellow
     }
@@ -335,20 +397,15 @@ function Save-VersionAndBuild([int]$VersionCode, [string]$VersionName, [string]$
         $blockBody +
         $current.Gradle.Substring($current.DefaultBlock.Groups['body'].Index + $current.DefaultBlock.Groups['body'].Length)
 
-    $escapedAppName = [System.Security.SecurityElement]::Escape($AppName)
-    $appNamePattern = '(?m)^(\s*<string\s+name="app_name"\s*>).*?(</string>\s*)$'
-    if (-not [regex]::IsMatch($current.Strings, $appNamePattern)) {
-        throw 'Could not find the app_name resource in strings.xml.'
+    if (-not (Test-HttpsUrl $AppUrl)) {
+        throw 'app_url must be a valid HTTPS URL without credentials or a fragment.'
     }
-    $newStrings = [regex]::Replace(
-        $current.Strings,
-        $appNamePattern,
-        [System.Text.RegularExpressions.MatchEvaluator]{
-            param($match)
-            $match.Groups[1].Value + $escapedAppName + $match.Groups[2].Value
-        },
-        1
-    )
+    if (-not (Test-HttpsUrl $UpdateManifestUrl)) {
+        throw 'update_manifest_url must be a valid HTTPS URL without credentials or a fragment.'
+    }
+    $newStrings = Set-StringResource $current.Strings 'app_name' $AppName
+    $newStrings = Set-StringResource $newStrings 'app_url' $AppUrl
+    $newStrings = Set-StringResource $newStrings 'update_manifest_url' $UpdateManifestUrl
 
     $originalManifest = [IO.File]::ReadAllText($manifestPath)
     try {
@@ -368,9 +425,13 @@ function Save-VersionAndBuild([int]$VersionCode, [string]$VersionName, [string]$
     $current.ManifestApplicationId = $ApplicationId
     $current.ApplicationId = $ApplicationId
     $current.AppName = $AppName
+    $current.AppUrl = $AppUrl
+    $current.UpdateManifestUrl = $UpdateManifestUrl
     $current.Strings = $newStrings
     Write-Host ''
     Write-Host "Saved app name $AppName, application ID $ApplicationId, Version Name $VersionName, and Version Code $VersionCode." -ForegroundColor Green
+    Write-Host "Saved app_url: $AppUrl" -ForegroundColor Green
+    Write-Host "Saved update_manifest_url: $UpdateManifestUrl" -ForegroundColor Green
     return $true
 }
 
@@ -379,6 +440,8 @@ $pendingCode = $current.VersionCode
 $pendingName = $current.VersionName
 $pendingApplicationId = $current.ApplicationId
 $pendingAppName = $current.AppName
+$pendingAppUrl = $current.AppUrl
+$pendingUpdateManifestUrl = $current.UpdateManifestUrl
 if (
     $current.DeviceVersionCode -gt $current.VersionCode -and
     -not [string]::IsNullOrWhiteSpace($current.DeviceVersionName)
@@ -392,6 +455,10 @@ while ($true) {
     Write-Host ''
     Write-Host "Last App Name: $pendingAppName" -ForegroundColor Green
     Write-Host "Latest package full name: $pendingApplicationId" -ForegroundColor Green
+    Write-Host "Current app_url: $($current.AppUrl)"
+    Write-Host "Pending app_url: $pendingAppUrl" -ForegroundColor Green
+    Write-Host "Current update_manifest_url: $($current.UpdateManifestUrl)"
+    Write-Host "Pending update_manifest_url: $pendingUpdateManifestUrl" -ForegroundColor Green
     Write-Host "Current: Version Name $($current.VersionName)  |  Version Code $($current.VersionCode)"
     Write-Host "Pending: Version Name $pendingName  |  Version Code $pendingCode" -ForegroundColor Green
     if ($current.ManifestApplicationId -cne $current.ApplicationId) {
@@ -413,11 +480,13 @@ while ($true) {
     Write-Host '6. Set Version Code manually (any positive whole number)'
     Write-Host '7. Set Android package name (applicationId; changing it creates a separate app)'
     Write-Host '8. Set App Name'
+    Write-Host '9. Set app_url (HTTPS website opened by the app)'
+    Write-Host '10. Set update_manifest_url (HTTPS update manifest)'
     Write-Host 'S. Save changes'
     Write-Host 'Q. Quit without saving'
     Write-Host 'After changing a value, choose S to save it and build the APK.' -ForegroundColor DarkGray
     Write-Host 'Or enter both on one line to save/build, e.g. Version Name 1.1, Version Code 3' -ForegroundColor DarkGray
-    $choiceInput = Read-Host 'Choose 1-8, S, Q, or enter both versions'
+    $choiceInput = Read-Host 'Choose 1-10, S, Q, or enter both versions'
     if ($null -eq $choiceInput) { break }
     $choice = $choiceInput.Trim()
 
@@ -478,6 +547,24 @@ while ($true) {
             }
             break
         }
+        '^9$' {
+            $newAppUrl = (Read-Host 'Enter app_url (HTTPS URL)').Trim()
+            if (-not (Test-HttpsUrl $newAppUrl)) {
+                Write-Host 'Enter a valid HTTPS URL without credentials or a fragment.' -ForegroundColor Yellow
+            } else {
+                $pendingAppUrl = $newAppUrl
+            }
+            break
+        }
+        '^10$' {
+            $newUpdateManifestUrl = (Read-Host 'Enter update_manifest_url (HTTPS URL)').Trim()
+            if (-not (Test-HttpsUrl $newUpdateManifestUrl)) {
+                Write-Host 'Enter a valid HTTPS URL without credentials or a fragment.' -ForegroundColor Yellow
+            } else {
+                $pendingUpdateManifestUrl = $newUpdateManifestUrl
+            }
+            break
+        }
         '^Version\s+Name\s+([^,]+),\s*Version\s+Code\s+(\d+)$' {
             $newName = $Matches[1].Trim()
             $newCodeText = $Matches[2]
@@ -493,12 +580,12 @@ while ($true) {
                 $pendingName = $newName
                 $pendingCode = $newCode
                 Write-Host "Saving Version Name $pendingName and Version Code $pendingCode, then building the debug APK..." -ForegroundColor Cyan
-                if (Save-VersionAndBuild $pendingCode $pendingName $pendingApplicationId $pendingAppName) { exit 0 }
+                if (Save-VersionAndBuild $pendingCode $pendingName $pendingApplicationId $pendingAppName $pendingAppUrl $pendingUpdateManifestUrl) { exit 0 }
             }
             break
         }
         '^(S|SAVE)$' {
-            if (Save-VersionAndBuild $pendingCode $pendingName $pendingApplicationId $pendingAppName) { exit 0 }
+            if (Save-VersionAndBuild $pendingCode $pendingName $pendingApplicationId $pendingAppName $pendingAppUrl $pendingUpdateManifestUrl) { exit 0 }
             break
         }
         '^(Q|QUIT)$' { exit 0 }

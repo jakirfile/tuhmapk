@@ -171,6 +171,21 @@ if errorlevel 1 (
 )
 
 echo.
+echo Fresh upload destination:
+echo   Repository: %REPO_PAGE%
+echo   Branch: %BRANCH%
+echo   Source folder: %SOURCE%
+echo The GitHub branch files will be replaced with this folder's files.
+echo Files that exist only on GitHub will be removed; commit history will be kept.
+echo.
+set "CONFIRM_UPLOAD="
+set /p "CONFIRM_UPLOAD=Continue with fresh upload? [y/N]: "
+if /I not "!CONFIRM_UPLOAD!"=="Y" (
+    echo Upload canceled. No GitHub changes made.
+    goto fail
+)
+
+echo.
 echo Copying ALL files from %SOURCE% ...
 rem /MIR makes the upload copy an exact mirror (files removed locally are removed on GitHub too).
 rem /XD excludes only the two .git metadata folders (source and the upload copy's own).
