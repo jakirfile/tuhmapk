@@ -1,8 +1,8 @@
 {
     "versionCode":  1,
-    "versionName":  "1.0",
-    "applicationId":  "com.ijtc.rreapp",
-    "apkUrl":  "https://raw.githubusercontent.com/jakirfile/rreapp/main/app-debug-668d29b583515b7f6f13cf2b9150b40497f5852b5ea29b3f4261ff383b612ec1.apk",
+    "versionName":  "1.1",
+    "applicationId":  "com.ijtc.tqimapk",
+    "apkUrl":  "https://raw.githubusercontent.com/jakirfile/tqimapk/main/app-debug-14337c83e6cbe8f6ec6a5fec447b50ae7a0fe569fd308320e28ab66af0acf623.apk",
     "apkFileName":  "app-debug.apk",
-    "sha256":  "668d29b583515b7f6f13cf2b9150b40497f5852b5ea29b3f4261ff383b612ec1"
+    "sha256":  "14337c83e6cbe8f6ec6a5fec447b50ae7a0fe569fd308320e28ab66af0acf623"
 }

@@ -217,6 +217,22 @@ function Get-QrDownloadUrl([string]$IndexHtml) {
     return $rawApkUri.AbsoluteUri
 }
 
+function Get-LastQrTargetUrl([string]$IndexHtml) {
+    $match = [regex]::Match(
+        $IndexHtml,
+        '(?is)<img\b(?=[^>]*\bdata-qr-target="(?<url>[^"]*)")[^>]*>'
+    )
+    if (-not $match.Success) {
+        return Get-QrDownloadUrl $IndexHtml
+    }
+
+    $targetUrl = [System.Net.WebUtility]::HtmlDecode($match.Groups['url'].Value)
+    if (-not (Test-HttpsUrl $targetUrl)) {
+        throw 'The saved QR target URL in index.html is invalid.'
+    }
+    return $targetUrl
+}
+
 function Write-ValidatedQrImage([string]$DownloadUrl, [string]$DestinationPath) {
     $curl = Get-Command 'curl.exe' -ErrorAction SilentlyContinue
     if (-not $curl) {
@@ -248,19 +264,30 @@ function Write-ValidatedQrImage([string]$DownloadUrl, [string]$DestinationPath) 
     }
 }
 
-function Set-IndexQrCacheKey([string]$IndexHtml, [string]$CacheKey) {
+function Set-IndexQrCacheKey([string]$IndexHtml, [string]$CacheKey, [string]$QrTargetUrl) {
     $expectedQr = '<img(?<attributes>[^>]*\bsrc="\./qr\.png(?:\?[^"]*)?"[^>]*)>'
     if ($IndexHtml -notmatch $expectedQr) {
         throw 'Could not find the QR image element in index.html.'
     }
 
     $qrSource = 'src="./qr.png?v=' + $CacheKey + '"'
+    $encodedTargetUrl = [System.Net.WebUtility]::HtmlEncode($QrTargetUrl)
     return [regex]::Replace(
         $IndexHtml,
         $expectedQr,
         [System.Text.RegularExpressions.MatchEvaluator]{
             param($match)
-            [regex]::Replace($match.Value, '\bsrc="\./qr\.png(?:\?[^"]*)?"', $qrSource, 1)
+            $imageTag = [regex]::Replace($match.Value, '\bsrc="\./qr\.png(?:\?[^"]*)?"', $qrSource, 1)
+            $targetAttribute = 'data-qr-target="' + $encodedTargetUrl + '"'
+            if ($imageTag -match '\bdata-qr-target="[^"]*"') {
+                return [regex]::Replace($imageTag, '\bdata-qr-target="[^"]*"', $targetAttribute, 1)
+            }
+
+            $insertIndex = $imageTag.Length - 1
+            if ($imageTag.EndsWith('/>')) {
+                $insertIndex--
+            }
+            return $imageTag.Insert($insertIndex, ' ' + $targetAttribute)
         },
         1
     )
@@ -330,10 +357,10 @@ function Build-DebugApk([int]$VersionCode, [string]$VersionName, [string]$Applic
     }
 
     $indexHtml = [IO.File]::ReadAllText($indexPath)
-    $downloadUrl = Get-QrDownloadUrl $indexHtml
-    Write-Host 'Refreshing the GitHub fallback QR image...' -ForegroundColor Cyan
+    $downloadUrl = Get-LastQrTargetUrl $indexHtml
+    Write-Host 'Refreshing the saved QR target image...' -ForegroundColor Cyan
     Write-ValidatedQrImage $downloadUrl $stagedQr
-    $indexHtml = Set-IndexQrCacheKey $indexHtml $VersionCode
+    $indexHtml = Set-IndexQrCacheKey $indexHtml $VersionCode $downloadUrl
     $versionHtml = [regex]::Escape('<p class="version" id="version" aria-live="polite">') +
         '.*?' +
         [regex]::Escape('</p>')
@@ -463,7 +490,7 @@ function Save-VersionAndBuild(
 $current = Read-VersionFiles
 $qrPath = Join-Path $projectRoot 'qr.png'
 $indexPath = Join-Path $projectRoot 'index.html'
-$currentQrTarget = Get-QrDownloadUrl ([IO.File]::ReadAllText($indexPath))
+$currentQrTarget = Get-LastQrTargetUrl ([IO.File]::ReadAllText($indexPath))
 $pendingCode = $current.VersionCode
 $pendingName = $current.VersionName
 $pendingApplicationId = $current.ApplicationId
@@ -488,7 +515,7 @@ while ($true) {
     Write-Host "Current update_manifest_url: $($current.UpdateManifestUrl)"
     Write-Host "Pending update_manifest_url: $pendingUpdateManifestUrl" -ForegroundColor Green
     Write-Host "QR image: $qrPath"
-    Write-Host "QR target URL: $currentQrTarget"
+    Write-Host "Last QR image link: $currentQrTarget"
     Write-Host "Current: Version Name $($current.VersionName)  |  Version Code $($current.VersionCode)"
     Write-Host "Pending: Version Name $pendingName  |  Version Code $pendingCode" -ForegroundColor Green
     if ($current.ManifestApplicationId -cne $current.ApplicationId) {
@@ -512,7 +539,7 @@ while ($true) {
     Write-Host '8. Set App Name'
     Write-Host '9. Set app_url (HTTPS website opened by the app)'
     Write-Host '10. Set update_manifest_url (HTTPS update manifest)'
-    Write-Host '11. Refresh qr.png from the QR target URL above (no APK build)'
+    Write-Host '11. Set QR target URL and refresh qr.png (no APK build)'
     Write-Host 'S. Save changes'
     Write-Host 'Q. Quit without saving'
     Write-Host 'After changing a value, choose S to save it and build the APK.' -ForegroundColor DarkGray
@@ -598,11 +625,20 @@ while ($true) {
         }
         '^11$' {
             $indexHtml = [IO.File]::ReadAllText($indexPath)
-            $currentQrTarget = Get-QrDownloadUrl $indexHtml
+            $currentQrTarget = Get-LastQrTargetUrl $indexHtml
+            $newQrTarget = (Read-Host 'Enter QR target URL (blank keeps current)').Trim()
+            if (-not [string]::IsNullOrWhiteSpace($newQrTarget)) {
+                if (-not (Test-HttpsUrl $newQrTarget)) {
+                    Write-Host 'Enter a valid HTTPS URL without credentials or a fragment.' -ForegroundColor Yellow
+                    break
+                }
+                $currentQrTarget = $newQrTarget
+            }
+
             Write-Host "Refreshing QR image: $qrPath" -ForegroundColor Cyan
             Write-ValidatedQrImage $currentQrTarget $qrPath
             $cacheKey = "$pendingCode-$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())"
-            $indexHtml = Set-IndexQrCacheKey $indexHtml $cacheKey
+            $indexHtml = Set-IndexQrCacheKey $indexHtml $cacheKey $currentQrTarget
             [IO.File]::WriteAllText($indexPath, $indexHtml, [Text.UTF8Encoding]::new($false))
             Write-Host "Updated QR image: $qrPath" -ForegroundColor Green
             Write-Host "QR target URL: $currentQrTarget" -ForegroundColor Green

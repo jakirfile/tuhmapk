@@ -39,7 +39,11 @@ avoids stale output paths from an older Gradle configuration cache.
    makes Android treat the APK as a separate app; it will not update the old
    app or transfer its data. The source `namespace` remains unchanged.
    After setting values, choose `S` to save and build; quitting with `Q`
-   discards pending values.
+   discards pending values. Choose option 11 to enter a custom HTTPS URL for
+   `qr.png` without building an APK; leaving the prompt blank uses the current
+   saved QR target URL. The last generated QR target is saved in `index.html`
+   and shown in the menu. Saving/building later regenerates the QR for that
+   saved target, so the custom link remains active.
 2. Save to build and verify the debug APK. The updater runs Gradle without the
    configuration cache, checks the APK and its signature, updates the
    manifest's version, application ID, and SHA-256, refreshes the version and

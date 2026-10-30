@@ -52,10 +52,6 @@
         "source": "com.ijtc.allapp-packageLogo-0:/drawable/ic_whatsapp.xml"
     },
     {
-        "merged": "com.ijtc.allapp-debug-4:/drawable_allapp.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/drawable/allapp.png"
-    },
-    {
         "merged": "com.ijtc.allapp-debug-4:/mipmap-xhdpi_ic_launcher_logo.png.flat",
         "source": "com.ijtc.allapp-packageLogo-0:/mipmap-xhdpi/ic_launcher_logo.png"
     },
@@ -126,6 +122,14 @@
     {
         "merged": "com.ijtc.allapp-debug-4:/mipmap-xhdpi_ic_launcher_round.webp.flat",
         "source": "com.ijtc.allapp-packageLogo-0:/mipmap-xhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.ijtc.allapp-debug-4:/drawable_rubel.png.flat",
+        "source": "com.ijtc.allapp-packageLogo-0:/drawable/rubel.png"
+    },
+    {
+        "merged": "com.ijtc.allapp-debug-4:/drawable_sonjoy.png.flat",
+        "source": "com.ijtc.allapp-packageLogo-0:/drawable/sonjoy.png"
     },
     {
         "merged": "com.ijtc.allapp-debug-4:/drawable-nodpi_ic_launcher_logo_foreground.png.flat",

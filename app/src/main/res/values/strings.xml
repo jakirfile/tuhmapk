@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">RREApp</string>
+    <string name="app_name">TQIM</string>
     <string name="no_internet">ইন্টারনেট নেই !</string>
     <string name="retry">Retry</string>
-    <string name="app_url">https://rreapp.jakirfile.workers.dev</string>
+    <string name="app_url">https://tqim.jakirfile.workers.dev</string>
     <string name="sim_picker_title">সিম থেকে নম্বর বাছাই করুন</string>
     <string name="sim_slot_label">সিম %1$d</string>
-    <string name="update_manifest_url" translatable="false">https://raw.githubusercontent.com/jakirfile/rreapp/main/update.json</string>
+    <string name="update_manifest_url" translatable="false">https://raw.githubusercontent.com/jakirfile/tqimapk/main/update.json</string>
     <string name="update_title">অ্যাপ আপডেট</string>
     <string name="update_message">নতুন সংস্করণ %1$s পাওয়া গেছে। এখনই আপডেট করবেন?</string>
     <string name="update_now">আপডেট করুন</string>
