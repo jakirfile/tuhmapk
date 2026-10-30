@@ -1,6 +1,6 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-3    package="com.ijtc.tqimapk"
+3    package="com.ijtc.rre"
 4    android:versionCode="1"
 5    android:versionName="1.1" >
 6
@@ -100,7 +100,7 @@
 52-->INJECTED
 53            android:name="com.ijtc.allapp.UpdateApkProvider"
 53-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:42:13-46
-54            android:authorities="com.ijtc.tqimapk.updateprovider"
+54            android:authorities="com.ijtc.rre.updateprovider"
 54-->INJECTED
 55            android:exported="false"
 55-->D:\AllApp-Android-Source\app\src\main\AndroidManifest.xml:44:13-37

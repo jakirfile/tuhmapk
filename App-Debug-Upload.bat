@@ -1,5 +1,9 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
+if /I not "%APP_UPLOAD_FORM_MODE%"=="1" (
+    wscript.exe "%~dp0App-Debug-Upload-Launcher.vbs" "%~dp0App-Debug-Upload-Form.ps1" "%~f0"
+    exit /b 0
+)
 pushd "%~dp0"
 if errorlevel 1 (
     echo Could not open the AllApp project folder.
@@ -35,6 +39,12 @@ if errorlevel 1 (
 )
 
 :chooseDirectory
+if /I "%APP_UPLOAD_FORM_MODE%"=="1" (
+    set "REPO_INPUT=%APP_UPLOAD_REPOSITORY_URL%"
+    set "UPLOAD_DIRECTORY=%APP_UPLOAD_DIRECTORY%"
+    set "DIRECTORY_CHOICE=1"
+    goto normalizeDestination
+)
 echo.
 echo GitHub repository: %REPO_URL%
 echo 1. Use this repository (repository root)
@@ -162,6 +172,7 @@ if /I not "%REPO_SLUG%"=="jakirfile/allapp" (
 echo WARNING: The whole repository will be replaced; only the selected directory will contain the upload files.
 echo If the repository is missing, it will be created as a public repository and uploaded.
 echo.
+if /I "%APP_UPLOAD_FORM_MODE%"=="1" goto uploadConfirmed
 set "CONFIRM="
 set /p "CONFIRM=Upload the existing APK and files listed above to this location? [y/N]: "
 if /I not "%CONFIRM%"=="Y" (
@@ -170,6 +181,7 @@ if /I not "%CONFIRM%"=="Y" (
     exit /b 0
 )
 
+:uploadConfirmed
 where git >nul 2>nul
 if errorlevel 1 (
     echo Git was not found. Install Git for Windows and try again.
@@ -188,6 +200,7 @@ if errorlevel 1 (
 
 echo.
 echo Cloning %REPO_URL% ...
+if defined APP_UPLOAD_STATUS_PATH >"%APP_UPLOAD_STATUS_PATH%" echo Connecting to GitHub repository...
 set "GCM_INTERACTIVE=always"
 git -c credential.helper=manager -c credential.interactive=always clone "%REPO_URL%" "%WORK%"
 set "GIT_RESULT=!ERRORLEVEL!"
@@ -256,6 +269,7 @@ if not errorlevel 1 git -C "%WORK%" reset --hard origin/%BRANCH% >nul
 
 echo.
 echo Replacing the entire repository with a fresh app upload...
+if defined APP_UPLOAD_STATUS_PATH >"%APP_UPLOAD_STATUS_PATH%" echo Preparing upload files...
 for /f "delims=" %%I in ('dir /b /a "%WORK%"') do (
     if /I not "%%I"==".git" (
         if exist "%WORK%\%%I\*" (rmdir /S /Q "%WORK%\%%I") else (del /F /Q "%WORK%\%%I")
@@ -299,6 +313,7 @@ if errorlevel 1 (
 
 echo.
 echo Uploading to GitHub...
+if defined APP_UPLOAD_STATUS_PATH >"%APP_UPLOAD_STATUS_PATH%" echo Uploading files to GitHub...
 set "GCM_INTERACTIVE=always"
 git -c credential.helper=manager -c credential.interactive=always -C "%WORK%" push -u origin %BRANCH%
 set "GIT_RESULT=!ERRORLEVEL!"
@@ -319,13 +334,16 @@ if "%UPLOAD_DIRECTORY%"=="." (
 echo Download page: %PAGES_DIRECTORY%
 echo.
 echo The Android app checks for updates here: %MANIFEST_URL%
+if defined APP_UPLOAD_STATUS_PATH >"%APP_UPLOAD_STATUS_PATH%" echo Success: files uploaded to GitHub.
 goto success
 
 :copyFailed
 echo Could not copy the four upload files.
+if defined APP_UPLOAD_STATUS_PATH >"%APP_UPLOAD_STATUS_PATH%" echo Upload failed while preparing files.
 goto failKeepWork
 
 :fail
+if defined APP_UPLOAD_STATUS_PATH >"%APP_UPLOAD_STATUS_PATH%" echo Upload failed.
 if exist "%WORK%" rmdir /S /Q "%WORK%"
 popd
 echo.
@@ -334,6 +352,7 @@ timeout /t 3 /nobreak >nul
 exit /b 1
 
 :failKeepWork
+if defined APP_UPLOAD_STATUS_PATH >"%APP_UPLOAD_STATUS_PATH%" echo Upload failed. Staging copy kept for inspection.
 echo Upload staging copy kept for inspection:
 echo %WORK%
 popd

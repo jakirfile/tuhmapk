@@ -1,9 +1,5 @@
 [
     {
-        "merged": "com.ijtc.allapp-debug-4:/mipmap-hdpi_ic_launcher_logo.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-hdpi/ic_launcher_logo.png"
-    },
-    {
         "merged": "com.ijtc.allapp-debug-4:/xml_backup_rules.xml.flat",
         "source": "com.ijtc.allapp-packageLogo-0:/xml/backup_rules.xml"
     },
@@ -28,8 +24,8 @@
         "source": "com.ijtc.allapp-packageLogo-0:/mipmap-mdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "com.ijtc.allapp-debug-4:/mipmap-mdpi_ic_launcher_logo.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-mdpi/ic_launcher_logo.png"
+        "merged": "com.ijtc.allapp-debug-4:/mipmap-xhdpi_ic_launcher_logo.xml.flat",
+        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-xhdpi/ic_launcher_logo.xml"
     },
     {
         "merged": "com.ijtc.allapp-debug-4:/mipmap-hdpi_ic_launcher.webp.flat",
@@ -40,28 +36,28 @@
         "source": "com.ijtc.allapp-packageLogo-0:/xml/update_file_paths.xml"
     },
     {
-        "merged": "com.ijtc.allapp-debug-4:/drawable-nodpi_ic_launcher_package_foreground.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/drawable-nodpi/ic_launcher_package_foreground.png"
+        "merged": "com.ijtc.allapp-debug-4:/mipmap-xxxhdpi_ic_launcher_logo.xml.flat",
+        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-xxxhdpi/ic_launcher_logo.xml"
     },
     {
         "merged": "com.ijtc.allapp-debug-4:/drawable-nodpi_ic_recents_logo.png.flat",
         "source": "com.ijtc.allapp-packageLogo-0:/drawable-nodpi/ic_recents_logo.png"
     },
     {
+        "merged": "com.ijtc.allapp-debug-4:/mipmap-hdpi_ic_launcher_logo.xml.flat",
+        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-hdpi/ic_launcher_logo.xml"
+    },
+    {
         "merged": "com.ijtc.allapp-debug-4:/drawable_ic_whatsapp.xml.flat",
         "source": "com.ijtc.allapp-packageLogo-0:/drawable/ic_whatsapp.xml"
     },
     {
-        "merged": "com.ijtc.allapp-debug-4:/mipmap-xhdpi_ic_launcher_logo.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-xhdpi/ic_launcher_logo.png"
+        "merged": "com.ijtc.allapp-debug-4:/mipmap-mdpi_ic_launcher_logo.xml.flat",
+        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-mdpi/ic_launcher_logo.xml"
     },
     {
         "merged": "com.ijtc.allapp-debug-4:/mipmap-anydpi-v26_ic_launcher.xml.flat",
         "source": "com.ijtc.allapp-packageLogo-0:/mipmap-anydpi-v26/ic_launcher.xml"
-    },
-    {
-        "merged": "com.ijtc.allapp-debug-4:/mipmap-xxxhdpi_ic_launcher_logo.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-xxxhdpi/ic_launcher_logo.png"
     },
     {
         "merged": "com.ijtc.allapp-debug-4:/mipmap-xhdpi_ic_launcher.webp.flat",
@@ -112,6 +108,10 @@
         "source": "com.ijtc.allapp-packageLogo-0:/mipmap-mdpi/ic_launcher.webp"
     },
     {
+        "merged": "com.ijtc.allapp-debug-4:/mipmap-xxhdpi_ic_launcher_logo.xml.flat",
+        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-xxhdpi/ic_launcher_logo.xml"
+    },
+    {
         "merged": "com.ijtc.allapp-debug-4:/mipmap-anydpi-v26_ic_launcher_logo.xml.flat",
         "source": "com.ijtc.allapp-packageLogo-0:/mipmap-anydpi-v26/ic_launcher_logo.xml"
     },
@@ -124,23 +124,15 @@
         "source": "com.ijtc.allapp-packageLogo-0:/mipmap-xhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "com.ijtc.allapp-debug-4:/drawable_rubel.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/drawable/rubel.png"
-    },
-    {
-        "merged": "com.ijtc.allapp-debug-4:/drawable_sonjoy.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/drawable/sonjoy.png"
-    },
-    {
         "merged": "com.ijtc.allapp-debug-4:/drawable-nodpi_ic_launcher_logo_foreground.png.flat",
         "source": "com.ijtc.allapp-packageLogo-0:/drawable-nodpi/ic_launcher_logo_foreground.png"
     },
     {
-        "merged": "com.ijtc.allapp-debug-4:/drawable-nodpi_ic_launcher_logo.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/drawable-nodpi/ic_launcher_logo.png"
+        "merged": "com.ijtc.allapp-debug-4:/drawable-nodpi_ic_launcher_package_foreground.xml.flat",
+        "source": "com.ijtc.allapp-packageLogo-0:/drawable-nodpi/ic_launcher_package_foreground.xml"
     },
     {
-        "merged": "com.ijtc.allapp-debug-4:/mipmap-xxhdpi_ic_launcher_logo.png.flat",
-        "source": "com.ijtc.allapp-packageLogo-0:/mipmap-xxhdpi/ic_launcher_logo.png"
+        "merged": "com.ijtc.allapp-debug-4:/drawable-nodpi_ic_launcher_logo.png.flat",
+        "source": "com.ijtc.allapp-packageLogo-0:/drawable-nodpi/ic_launcher_logo.png"
     }
 ]

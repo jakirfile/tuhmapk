@@ -4,7 +4,8 @@ import android.accounts.AccountManager
 import android.app.ActivityManager
 import android.app.AlertDialog
 import android.app.Dialog
-import android.graphics.BitmapFactory
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.view.WindowInsets
 import android.widget.FrameLayout
@@ -856,18 +857,15 @@ class MainActivity : Activity() {
 
     private fun applyRecentsIcon() {
         val label = getString(R.string.app_name)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            setTaskDescription(
-                ActivityManager.TaskDescription.Builder()
-                    .setLabel(label)
-                    .setIcon(R.drawable.ic_recents_logo)
-                    .build()
-            )
-        } else {
-            val icon = BitmapFactory.decodeResource(resources, R.drawable.ic_recents_logo)
-            @Suppress("DEPRECATION")
-            setTaskDescription(ActivityManager.TaskDescription(label, icon))
+        val icon = Bitmap.createBitmap(192, 192, Bitmap.Config.ARGB_8888)
+        Canvas(icon).apply {
+            drawColor(Color.rgb(16, 62, 67))
+            val logo = resources.getDrawable(R.drawable.logo, theme)
+            logo.setBounds(0, 0, icon.width, icon.height)
+            logo.draw(this)
         }
+        @Suppress("DEPRECATION")
+        setTaskDescription(ActivityManager.TaskDescription(label, icon))
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

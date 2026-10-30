@@ -23,27 +23,43 @@ avoids stale output paths from an older Gradle configuration cache.
 
 ## Prepare and publish an update
 
-1. Run `App-Update.bat` and adjust the version. The updater considers
-   the version in Gradle, `update.json`, and any connected device with the
-   configured application ID installed. The pending values start from Gradle;
-   the Save action builds exactly the displayed Version Name and Version Code without
-   changing either automatically. Use option 6 to enter any positive code,
-   including a lower one. Saving a code that is not higher than the
-   current/installed minimum shows a warning; Android will not install it over
-   a higher version, so that installation must be removed before installing
-   the lower-code APK. Without a connected device, the updater reports that it
-   can only use the Gradle and manifest values.
-   Use option 5 to enter a custom Version Name (for example `1.2-beta` or
-   `AllApp Special`), option 6 to set a Version Code, and option 7 to change
-   the Android package name (`applicationId`). Changing the application ID
+1. Run `App-Update.bat` to open the version-update card form. The updater
+   considers the version in Gradle, `update.json`, and any connected device
+   with the configured application ID installed. The pending values start
+   from Gradle (or the detected installed version name when its code is
+   higher). Use `+ Name` / `- Name` to adjust the last numeric segment, or
+   type any Version Name (for example `1.2-beta` or `AllApp Special`). Use
+   `+ Code` / `- Code` or type any positive Version Code, including a lower
+   one. `Save & Build` builds exactly the displayed values without changing
+   them automatically and does not show a version-floor warning. Android may
+   still reject installing an APK whose Version Code is lower than the one
+   already installed; remove the installed app first in that case.
+   The check icon beside either version field saves just that value to
+   `app/build.gradle.kts` and updates the Current display without building an
+   APK. It does not update `update.json`, `index.html`, or the APK; use
+   `Save & Build` to prepare a matching installable update.
+   Edit the Android package name (`applicationId`), App Name, `app_url`, and
+   `update_manifest_url` directly in the form, or enter replacements in the
+   empty fields below them and use the apply icons to move the values into the
+   main fields. Those apply actions only update pending form values; use
+   `Save & Build` to save them. Changing the application ID
    makes Android treat the APK as a separate app; it will not update the old
-   app or transfer its data. The source `namespace` remains unchanged.
-   After setting values, choose `S` to save and build; quitting with `Q`
-   discards pending values. Choose option 11 to enter a custom HTTPS URL for
-   `qr.png` without building an APK; leaving the prompt blank uses the current
-   saved QR target URL. The last generated QR target is saved in `index.html`
-   and shown in the menu. Saving/building later regenerates the QR for that
-   saved target, so the custom link remains active.
+   app or transfer its data. The source `namespace` remains unchanged. The
+   form previews the current logo and lets you select a new PNG. Clicking the
+   adjacent check icon immediately saves it as
+   `app/src/main/res/drawable/logo.png`, moves the preview to the current-logo
+   box, and clears the new-logo box. Gradle uses `logo.png` as the launcher
+   and Recent Apps logo during `Save & Build`. When no fixed `logo.png` exists,
+   Gradle continues using the legacy drawable named after the final
+   `applicationId` segment.
+   Generated launcher
+   and Recent Apps icons use 20dp of padding on each side.
+   Enter a custom HTTPS URL in the QR card and choose `Refresh QR` to update
+   `qr.png` without building an APK; leaving the field blank keeps the current
+   saved QR target. The last generated QR target is saved in `index.html`.
+   `Save & Build` later regenerates the QR for that saved target, so the
+   custom link remains active. Close the form to discard pending app/version
+   settings; a QR refresh is saved immediately.
 2. Save to build and verify the debug APK. The updater runs Gradle without the
    configuration cache, checks the APK and its signature, updates the
    manifest's version, application ID, and SHA-256, refreshes the version and

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ijtc.tqimapk"
+    package="com.ijtc.rre"
     android:versionCode="1"
     android:versionName="1.1" >
 
@@ -51,7 +51,7 @@
 
         <provider
             android:name="com.ijtc.allapp.UpdateApkProvider"
-            android:authorities="com.ijtc.tqimapk.updateprovider"
+            android:authorities="com.ijtc.rre.updateprovider"
             android:exported="false"
             android:grantUriPermissions="true" />
     </application>

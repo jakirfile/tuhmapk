@@ -10,6 +10,9 @@ abstract class GeneratePackageLogoResources : org.gradle.api.DefaultTask() {
     @get:org.gradle.api.tasks.OutputDirectory
     abstract val outputDirectory: org.gradle.api.file.DirectoryProperty
 
+    @get:org.gradle.api.tasks.Input
+    abstract val applicationId: org.gradle.api.provider.Property<String>
+
     @org.gradle.api.tasks.TaskAction
     fun generate() {
         val sourceResources = resourceDirectory.get().asFile
@@ -18,28 +21,63 @@ abstract class GeneratePackageLogoResources : org.gradle.api.DefaultTask() {
 
         sourceResources.walkTopDown()
             .filter { it.isFile }
+            .filterNot {
+                it.parentFile.name.startsWith("mipmap-") && it.name == "ic_launcher_logo.png"
+            }
             .forEach { source ->
                 val destination = generatedResources.resolve(source.relativeTo(sourceResources).path)
                 destination.parentFile.mkdirs()
                 source.copyTo(destination, overwrite = true)
             }
 
-        val logoFile = sourceResources.resolve("drawable/logo.png")
+        val packageSuffix = applicationId.get().substringAfterLast('.')
+        val fixedLogoFile = sourceResources.resolve("drawable/logo.png")
+        val logoFile = if (fixedLogoFile.isFile) {
+            fixedLogoFile
+        } else {
+            if (!packageSuffix.matches(Regex("[a-z][a-z0-9_]*"))) {
+                throw org.gradle.api.GradleException(
+                    "The last applicationId segment '$packageSuffix' must be a lowercase Android resource name."
+                )
+            }
+            sourceResources.resolve("drawable/$packageSuffix.png")
+        }
         if (!logoFile.isFile) {
-            logger.lifecycle("drawable/logo.png was not found; using the default launcher icon.")
-            return
+            throw org.gradle.api.GradleException(
+                "Logo not found: app/src/main/res/drawable/logo.png or " +
+                    "app/src/main/res/drawable/$packageSuffix.png."
+            )
+        }
+        val logoResourceName = logoFile.nameWithoutExtension
+
+        fun writePaddedDrawable(destination: java.io.File, drawable: String) {
+            destination.parentFile.mkdirs()
+            destination.writeText(
+                """<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="$drawable"
+    android:insetLeft="20dp"
+    android:insetTop="20dp"
+    android:insetRight="20dp"
+    android:insetBottom="20dp" />
+""",
+                Charsets.UTF_8
+            )
         }
 
         listOf("mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi").forEach { density ->
             val densityDirectory = generatedResources.resolve("mipmap-$density")
-            logoFile.copyTo(densityDirectory.resolve("ic_launcher_logo.png"), overwrite = true)
+            writePaddedDrawable(
+                densityDirectory.resolve("ic_launcher_logo.xml"),
+                "@drawable/$logoResourceName"
+            )
         }
 
         val foregroundDirectory = generatedResources.resolve("drawable-nodpi")
         foregroundDirectory.mkdirs()
-        logoFile.copyTo(
-            foregroundDirectory.resolve("ic_launcher_package_foreground.png"),
-            overwrite = true
+        writePaddedDrawable(
+            foregroundDirectory.resolve("ic_launcher_package_foreground.xml"),
+            "@drawable/$logoResourceName"
         )
         generatedResources.resolve("mipmap-anydpi-v26/ic_launcher_logo.xml").writeText(
             """<?xml version="1.0" encoding="utf-8"?>
@@ -51,7 +89,9 @@ abstract class GeneratePackageLogoResources : org.gradle.api.DefaultTask() {
 """,
             Charsets.UTF_8
         )
-        logger.lifecycle("Using drawable/logo.png as the launcher logo.")
+        logger.lifecycle(
+            "Using drawable/$logoResourceName.png as the launcher and Recent Apps logo with 20dp padding."
+        )
     }
 }
 
@@ -63,7 +103,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ijtc.tqimapk"
+        applicationId = "com.ijtc.rre"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -97,6 +137,7 @@ androidComponents {
             GeneratePackageLogoResources::class.java
         ) {
             resourceDirectory.set(mainResourceDirectory)
+            applicationId.set(variant.applicationId)
             outputDirectory.set(
                 layout.buildDirectory.dir("generated/res/packageLogo/${variant.name}")
             )

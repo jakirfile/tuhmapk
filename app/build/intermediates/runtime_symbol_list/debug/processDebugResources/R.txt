@@ -17,8 +17,6 @@ int drawable ic_recents_logo 0x7f020008
 int drawable ic_whatsapp 0x7f020009
 int drawable logo 0x7f02000a
 int drawable logout_icon 0x7f02000b
-int drawable rubel 0x7f02000c
-int drawable sonjoy 0x7f02000d
 int mipmap ic_launcher 0x7f030000
 int mipmap ic_launcher_logo 0x7f030001
 int mipmap ic_launcher_round 0x7f030002

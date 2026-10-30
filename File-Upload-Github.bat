@@ -1,5 +1,9 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
+if /I not "%FILE_UPLOAD_FORM_MODE%"=="1" (
+    start "" powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File "%~dp0File-Upload-Github-Form.ps1" -BatchPath "%~f0"
+    exit /b 0
+)
 chcp 65001 >nul
 pushd "%~dp0"
 if errorlevel 1 (
@@ -12,6 +16,10 @@ set "SOURCE=%CD%"
 set "REPO_CONFIG=%LOCALAPPDATA%\AllApp\File-Upload-Github.repository"
 set "REPO_URL=https://github.com/jakirfile/AllApp-Android-Source.git"
 if exist "%REPO_CONFIG%" set /p "REPO_URL="<"%REPO_CONFIG%"
+if /I "%FILE_UPLOAD_FORM_MODE%"=="1" (
+    set "REPO_URL=%FILE_UPLOAD_REPOSITORY_URL%"
+    goto newDestination
+)
 if defined REPO_URL (
     echo.
     echo Last uploaded GitHub link: %REPO_URL%
@@ -29,7 +37,11 @@ if defined REPO_URL (
 :newDestination
 echo.
 set "REPO_INPUT="
+if /I "%FILE_UPLOAD_FORM_MODE%"=="1" (
+    set "REPO_INPUT=%FILE_UPLOAD_REPOSITORY_URL%"
+) else (
 set /p "REPO_INPUT=Enter a GitHub repository link (e.g. https://github.com/owner/repo): "
+)
 if not defined REPO_INPUT (
     echo A GitHub repository link is required.
     goto fail
@@ -101,6 +113,7 @@ if exist "%SOURCE%\gradlew.bat" call "%SOURCE%\gradlew.bat" --stop >nul 2>nul
 
 echo.
 echo Cloning %REPO_URL% ...
+if defined FILE_UPLOAD_STATUS_PATH >"%FILE_UPLOAD_STATUS_PATH%" echo Connecting to GitHub repository...
 set "GCM_INTERACTIVE=always"
 git -c credential.helper=manager -c credential.interactive=always clone "%REPO_URL%" "%WORK%"
 set "GIT_RESULT=%ERRORLEVEL%"
@@ -179,14 +192,17 @@ echo The GitHub branch files will be replaced with this folder's files.
 echo Files that exist only on GitHub will be removed; commit history will be kept.
 echo.
 set "CONFIRM_UPLOAD="
+if /I "%FILE_UPLOAD_FORM_MODE%"=="1" goto uploadConfirmed
 set /p "CONFIRM_UPLOAD=Continue with fresh upload? [y/N]: "
 if /I not "!CONFIRM_UPLOAD!"=="Y" (
     echo Upload canceled. No GitHub changes made.
     goto fail
 )
 
+:uploadConfirmed
 echo.
 echo Copying ALL files from %SOURCE% ...
+if defined FILE_UPLOAD_STATUS_PATH >"%FILE_UPLOAD_STATUS_PATH%" echo Preparing a fresh copy of the project files...
 rem /MIR makes the upload copy an exact mirror (files removed locally are removed on GitHub too).
 rem /XD excludes only the two .git metadata folders (source and the upload copy's own).
 robocopy "%SOURCE%" "%WORK%" /MIR /COPY:DAT /DCOPY:DAT /R:2 /W:2 /NFL /NDL /NP ^
@@ -214,6 +230,7 @@ if errorlevel 1 (
 
 echo.
 echo Pushing everything to GitHub ...
+if defined FILE_UPLOAD_STATUS_PATH >"%FILE_UPLOAD_STATUS_PATH%" echo Uploading files to GitHub...
 set "GCM_INTERACTIVE=always"
 git -c credential.helper=manager -c credential.interactive=always -c http.postBuffer=524288000 -C "%WORK%" push origin "HEAD:refs/heads/%BRANCH%"
 set "GIT_RESULT=%ERRORLEVEL%"
@@ -234,11 +251,14 @@ if errorlevel 1 (
     echo Last uploaded link: %REPO_PAGE%
     echo This link will be shown the next time you run this script.
 )
+if defined FILE_UPLOAD_STATUS_PATH >"%FILE_UPLOAD_STATUS_PATH%" echo Success: all project files uploaded to GitHub.
 goto success
 
 :fail
+if defined FILE_UPLOAD_STATUS_PATH >"%FILE_UPLOAD_STATUS_PATH%" echo Upload failed. Check the error details.
 if exist "%WORK%" rmdir /S /Q "%WORK%" >nul 2>nul
 :failKeep
+if defined FILE_UPLOAD_STATUS_PATH >"%FILE_UPLOAD_STATUS_PATH%" echo Upload failed. Copy kept for inspection.
 echo.
 echo Upload did NOT complete. This window closes in 10 seconds...
 popd

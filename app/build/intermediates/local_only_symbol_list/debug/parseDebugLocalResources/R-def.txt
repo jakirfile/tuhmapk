@@ -19,8 +19,6 @@ drawable ic_recents_logo
 drawable ic_whatsapp
 drawable logo
 drawable logout_icon
-drawable rubel
-drawable sonjoy
 mipmap ic_launcher
 mipmap ic_launcher_logo
 mipmap ic_launcher_round
