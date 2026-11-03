@@ -1,2 +1,0 @@
--keep class com.ijtc.allapp.MainActivity { <init>(); }
--keep class com.ijtc.allapp.UpdateApkProvider { <init>(); }

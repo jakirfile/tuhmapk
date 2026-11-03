@@ -1,9 +1,0 @@
-com.ijtc.allapp-packageLogo-0 D:\AllApp-Android-Source\app\build\generated\res\packageLogo\release
-com.ijtc.allapp-pngs-1 D:\AllApp-Android-Source\app\build\generated\res\pngs\release
-com.ijtc.allapp-updated_navigation_xml-2 D:\AllApp-Android-Source\app\build\generated\updated_navigation_xml\release
-com.ijtc.allapp-packageReleaseResources-3 D:\AllApp-Android-Source\app\build\intermediates\incremental\release\packageReleaseResources\merged.dir
-com.ijtc.allapp-packageReleaseResources-4 D:\AllApp-Android-Source\app\build\intermediates\incremental\release\packageReleaseResources\stripped.dir
-com.ijtc.allapp-merged-not-compiled-resources-5 D:\AllApp-Android-Source\app\build\intermediates\merged-not-compiled-resources\release
-com.ijtc.allapp-release-6 D:\AllApp-Android-Source\app\build\intermediates\merged_res\release\mergeReleaseResources
-com.ijtc.allapp-release-7 D:\AllApp-Android-Source\app\src\release\res
-gradleHome-0 C:\Users\Lenovo\.gradle

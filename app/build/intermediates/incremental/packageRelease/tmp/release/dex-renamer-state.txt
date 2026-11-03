@@ -1,4 +1,0 @@
-#Thu Oct 29 21:21:24 GMT+06:00 2026
-base.0=D\:\\AllApp-Android-Source\\app\\build\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
-path.0=classes.dex
-renamed.0=classes.dex
